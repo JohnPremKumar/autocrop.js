@@ -44,7 +44,7 @@
     let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
 
-    image.onload = new Promise (resolve, reject) => {
+    image.onload = new Promise (function (resolve, reject) {
       let width = image.width;
       let height = image.height;
 
@@ -140,7 +140,7 @@
         original.setAttribute(options.marker, 'true');
       }
       resolve(dataURL);
-    };
+    });
 
     // Load image from the original element
     image.crossOrigin = 'anonymous';
