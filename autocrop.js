@@ -10,7 +10,8 @@
     invertTolerance: 0.90,
     margin: '2%',
     allowInvert: true,
-    marker: 'cropped'
+    marker: 'cropped',
+    dryRun: false
   };
 
   function getIsBgColorFunc(bgColor, colorTolerance) {
@@ -43,7 +44,7 @@
     let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
 
-    image.onload = () => {
+    image.onload = new Promise (resolve, reject) => {
       let width = image.width;
       let height = image.height;
 
@@ -129,17 +130,22 @@
       context.drawImage(image, r.sx, r.sy, r.ex - r.sx, r.ey - r.sy, margin, margin, r.ex - r.sx, r.ey - r.sy);
 
       // Draw back to the target element
-      target.src = canvas.toDataURL();
-      target.width = width;
-      target.height = height;
+      const dataURL = canvas.toDataURL();
+      if (!options.dryRun) {
+        target.src = dataURL;
+        target.width = width;
+        target.height = height;
 
-      // Mark as processed
-      original.setAttribute(options.marker, 'true');
+        // Mark as processed
+        original.setAttribute(options.marker, 'true');
+      }
+      resolve(dataURL);
     };
 
     // Load image from the original element
     image.crossOrigin = 'anonymous';
     image.src = original.src;
+    return image.onload;
   }
 
   return autoCrop;
